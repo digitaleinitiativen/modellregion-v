@@ -1,4 +1,5 @@
 import * as GC from "./Constants.js";
+import LEVEL from "./Level.js";
 
 class GameScene extends Phaser.Scene {
 	constructor() {
@@ -7,6 +8,12 @@ class GameScene extends Phaser.Scene {
 		this.markus = null;
 		this.background1 = null;
 		this.background2 = null;
+		this.person = null;
+
+		this.lastPostion = 0;
+		this.position = 0;
+		this.levelIterator = 0;
+		this.levelIterationX = 0;
 	}
 
 	preload() {
@@ -16,6 +23,10 @@ class GameScene extends Phaser.Scene {
 		});
 		this.load.image('backgroundGame', 'img/background.png');
 		this.load.image('floor', 'img/floor.png');
+		this.load.spritesheet('gang', 'img/gang.png', {
+			frameWidth: 56,
+			frameHeight: 128
+		});
 	}
 
 	create() {
@@ -44,11 +55,42 @@ class GameScene extends Phaser.Scene {
             console.log('switching to EndScene');
             this.scene.start('EndScene');
         }, this);
+
+        this.fillObjects();
 	}
 
 	update() {
+		this.position =+ this.lastPosition - this.background1.x;
 		if(this.background1.x < -GC.WIDTH) this.background1.x += 2 * GC.WIDTH;
 		if(this.background2.x < -GC.WIDTH) this.background2.x += 2 * GC.WIDTH;
+		this.lastPosition = this.background1.x;
+
+		this.fillObjects();
 	}
+
+	fillObjects() {
+		while(LEVEL[this.levelIterator] && LEVEL[this.levelIterator].deltaX + this.levelIterationX 
+			< this.position + GC.WIDTH) {
+			switch(LEVEL[this.levelIterator].type) {
+				case 'person':
+					this.createPerson(LEVEL[this.levelIterator]);
+				break;
+			}
+			this.levelIterationX =+ LEVEL[this.levelIterator].deltaX;
+			this.levelIterator++;
+		}
+	}
+
+	createPerson(obj) {
+		let person = this.add.sprite(
+			LEVEL[this.levelIterator].deltaX + this.levelIterationX - this.position, 
+			GC.HEIGHT - GC.FLOOR_HEIGHT,
+			'gang', 3
+		);
+		person.setOrigin(0, 1);
+		this.physics.add.existing(person);
+		person.body.setVelocityX(GC.PERSON_SCROLL_SPEED);
+	}
+
 }
 export default GameScene;
