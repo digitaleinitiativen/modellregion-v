@@ -1,6 +1,12 @@
 export const WIDTH = 1024;
 export const HEIGHT = 256;
+export const HIT_REGION = 50;
+export const TYPE_HOUSE = 'house';
+export const TYPE_PERSON = 'person';
+export const TYPE_DEMONSTRATION = 'demonstration'
 export const BACKGROUND_SCROLL_SPEED = -200;
 export const PERSON_SCROLL_SPEED = -300;
-export const HOUSE_SCROLL_SPEED = -280;
 export const FLOOR_HEIGHT = 32;
+export const VACCINATION_PREFIX = 'Vaccinated: ';
+export const HOUSE_PREFIX = 'Opened: ';
+export const HOUSE_SCROLL_SPEED = -280;
