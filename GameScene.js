@@ -2,7 +2,7 @@ import * as GC from "./Constants.js";
 
 class GameScene extends Phaser.Scene {
 	constructor() {
-		super('game');
+		super({ key: 'GameScene' });
 
 		this.markus = null;
 	}
@@ -12,12 +12,12 @@ class GameScene extends Phaser.Scene {
 			frameWidth: 96,
 			frameHeight: 128
 		});
-		this.load.image('background', 'img/background.png');
+		this.load.image('backgroundGame', 'img/background.png');
 		this.load.image('floor', 'img/floor.png');
 	}
 
 	create() {
-		this.add.image(GC.WIDTH/2, GC.HEIGHT/2, 'background');
+		this.add.image(GC.WIDTH/2, GC.HEIGHT/2, 'backgroundGame');
 		this.add.image(GC.WIDTH/2, GC.HEIGHT - 32 / 2, 'floor');
 
 		this.markus = this.add.sprite(128, GC.HEIGHT - 34 - 128 / 2, 'markus-w', 0);
@@ -29,6 +29,11 @@ class GameScene extends Phaser.Scene {
         });
 
         this.markus.play('walk');
+
+        this.input.once('pointerdown', function () {
+            console.log('switching to EndScene');
+            this.scene.start('EndScene');
+        }, this);
 	}
 
 	update() {
