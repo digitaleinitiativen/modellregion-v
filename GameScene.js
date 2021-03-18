@@ -17,11 +17,12 @@ class GameScene extends Phaser.Scene {
 	}
 
 	preload() {
-		this.load.spritesheet('markus-w', 'img/markus-w.png', {
+		this.load.spritesheet('markus-w', 'img/markus-w-suite.png', {
 			frameWidth: 96,
 			frameHeight: 128
 		});
 		this.load.image('backgroundGame', 'img/background.png');
+		this.load.image('dgs', 'img/DGS.png');
 		this.load.image('floor', 'img/floor.png');
 		this.load.spritesheet('gang', 'img/gang.png', {
 			frameWidth: 56,
@@ -72,11 +73,14 @@ class GameScene extends Phaser.Scene {
 				case 'person':
 					this.createPerson(LEVEL[this.levelIterator]);
 				break;
+				case 'house':
+					this.createHouse(LEVEL[this.levelIterator]);
+				break;
 				case 'end':
 					this.end();
 				break;
 			}
-			this.levelIterationX =+ LEVEL[this.levelIterator].deltaX;
+			this.levelIterationX += LEVEL[this.levelIterator].deltaX;
 			this.levelIterator++;
 		}
 	}
@@ -86,7 +90,7 @@ class GameScene extends Phaser.Scene {
 	}
 	createPerson(obj) {
 		let person = this.add.sprite(
-			LEVEL[this.levelIterator].deltaX + this.levelIterationX - this.runPosition, 
+			obj.deltaX + this.levelIterationX - this.runPosition, 
 			GC.HEIGHT - GC.FLOOR_HEIGHT,
 			'gang', 3
 		);
@@ -96,6 +100,17 @@ class GameScene extends Phaser.Scene {
 
 		//person.data.set('type', 'person');
 		//person.data.set('reacted', false);
+	}
+
+	createHouse(obj) {
+		let house = this.add.image(
+			obj.deltaX + this.levelIterationX - this.runPosition, 
+			GC.HEIGHT - GC.FLOOR_HEIGHT,
+			'dgs'
+		);
+		house.setOrigin(0, 1);
+		this.physics.add.existing(house);
+		house.body.setVelocityX(GC.HOUSE_SCROLL_SPEED);
 	}
 
 }
