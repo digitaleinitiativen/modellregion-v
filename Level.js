@@ -15,6 +15,12 @@ const LEVEL = [
 	deltaX: GC.WIDTH - 200
 },
 {
+	type: "background",
+	key1: "wald1",
+	key2: "wald2",
+	deltaX: 220
+},
+{
 	type: "person",
 	deltaX: GC.WIDTH - 200
 },
