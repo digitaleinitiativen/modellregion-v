@@ -66,8 +66,8 @@ class GameScene extends Phaser.Scene {
 	fillObjects() {
 		while(LEVEL[this.levelIterator] 
 			&& LEVEL[this.levelIterator].deltaX + this.levelIterationX 
-			<= this.runPosition + GC.WIDTH) {
-			console.log(LEVEL[this.levelIterator].type);
+			<= this.runPosition + GC.WIDTH
+		) {
 			switch(LEVEL[this.levelIterator].type) {
 				case 'person':
 					this.createPerson(LEVEL[this.levelIterator]);
