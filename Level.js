@@ -17,7 +17,8 @@ const LEVEL = [
 {
 	type: "person",
 	deltaX: 200
-}
+},
+{ type: "end", deltaX: GC.WIDTH * 1.5 }
 ];
 
 export default LEVEL;
