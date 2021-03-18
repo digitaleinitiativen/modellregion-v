@@ -11,6 +11,10 @@ import * as GC from "./Constants.js";
 
 const LEVEL = [
 {
+	type: "house",
+	deltaX: GC.WIDTH - 200
+},
+{
 	type: "person",
 	deltaX: GC.WIDTH - 200
 },
