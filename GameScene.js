@@ -21,6 +21,8 @@ class GameScene extends Phaser.Scene {
 		this.position = 0;
 		this.levelIterator = 0;
 		this.levelIterationX = 0;
+
+		this.vaccinationText = null;
 	}
 
 	preload() {
@@ -73,6 +75,8 @@ class GameScene extends Phaser.Scene {
         this.three = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
         // disguise with sunglasses
         this.four = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
+
+        this.vaccinationText = this.add.text(4, GC.HEIGHT/2, GC.VACCINATION_PREFIX + this.vaccinated);
 	}
 
 	update() {
@@ -90,11 +94,12 @@ class GameScene extends Phaser.Scene {
 		// find objects that are within the HIT_RANGE of markus
 		//console.log(this.markus.x, this.obstacles.map(obj => obj.x));
 		let hitObjs = this.obstacles.filter(
-			obj => {obj.x <= this.markus.x + GC.HIT_REGION && obj.x >= this.markus.x - GC.HIT_REGION}
+			obj => obj.x <= this.markus.x + GC.HIT_REGION && obj.x >= this.markus.x - GC.HIT_REGION && obj.data.get('reacted') === false
 		);
-		// find objects that are left of the HIT_RANGE of markus and markus has not reacted to them
+
+		// find objects that are out of the game to remove them from the obstacles array
 		let notReactedObjs = this.obstacles.filter(
-			obj => {obj.x <= this.markus.x - GC.HIT_REGION && obj.data.get('reacted') === false}
+			obj => obj.x <= -GC.WIDTH/2
 		);
 
 		// open doors
@@ -120,7 +125,9 @@ class GameScene extends Phaser.Scene {
 
 			let humans = hitObjs.filter( obj => obj.data.get('type') === GC.TYPE_PERSON);
 
-console.log(this.markus.x, this.obstacles.map(obj => obj.x));	
+
+			console.log(this.markus.x - GC.HIT_REGION, this.obstacles[0].x, this.markus.x + GC.HIT_REGION);
+			console.log(hitObjs.length);
 			console.log(humans.length);
 
 			// do vaccinate humans
@@ -131,6 +138,7 @@ console.log(this.markus.x, this.obstacles.map(obj => obj.x));
 
 			// score the vaccination
 			this.vaccinated += humans.length;
+			this.vaccinationText.setText(GC.VACCINATION_PREFIX + this.vaccinated);
 		}
 
 		// mask people
