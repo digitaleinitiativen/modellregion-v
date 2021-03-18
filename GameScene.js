@@ -90,6 +90,8 @@ class GameScene extends Phaser.Scene {
 		person.setOrigin(0, 1);
 		this.physics.add.existing(person);
 		person.body.setVelocityX(GC.PERSON_SCROLL_SPEED);
+		person.data.set('type', 'person');
+		person.data.set('reacted', false);
 	}
 
 }
