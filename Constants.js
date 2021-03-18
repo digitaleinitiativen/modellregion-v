@@ -8,3 +8,5 @@ export const BACKGROUND_SCROLL_SPEED = -200;
 export const PERSON_SCROLL_SPEED = -300;
 export const FLOOR_HEIGHT = 32;
 export const VACCINATION_PREFIX = 'Vaccinated: ';
+export const HOUSE_PREFIX = 'Opened: ';
+export const HOUSE_SCROLL_SPEED = -280;

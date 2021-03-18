@@ -17,20 +17,22 @@ class GameScene extends Phaser.Scene {
 		this.background1 = null;
 		this.background2 = null;
 
-		this.lastPostion = 0;
-		this.position = 0;
+		this.lastPosition = 0;
+		this.runPosition = 0;
 		this.levelIterator = 0;
 		this.levelIterationX = 0;
 
 		this.vaccinationText = null;
+		this.openText = null;
 	}
 
 	preload() {
-		this.load.spritesheet('markus-w', 'img/markus-w.png', {
+		this.load.spritesheet('markus-w', 'img/markus-w-suite.png', {
 			frameWidth: 96,
 			frameHeight: 128
 		});
 		this.load.image('backgroundGame', 'img/background.png');
+		this.load.image('dgs', 'img/DGS.png');
 		this.load.image('floor', 'img/floor.png');
 		this.load.spritesheet('gang', 'img/gang.png', {
 			frameWidth: 56,
@@ -60,10 +62,12 @@ class GameScene extends Phaser.Scene {
 
         this.markus.play('walk');
 
+        /*
         this.input.once('pointerdown', function () {
             console.log('switching to EndScene');
             this.scene.start('EndScene');
         }, this);
+        */
 
         //this.fillObjects();
 
@@ -77,10 +81,16 @@ class GameScene extends Phaser.Scene {
         this.four = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
 
         this.vaccinationText = this.add.text(4, GC.HEIGHT/2, GC.VACCINATION_PREFIX + this.vaccinated);
+        this.openText = this.add.text(200, GC.HEIGHT/2, GC.HOUSE_PREFIX + this.opened);
+
+    	// TODO: remove this text
+		this.add.text(400, GC.HEIGHT/2, 'press 1: open house, 2: vaccinate human');
+
+        this.fillObjects();
 	}
 
 	update() {
-		this.position =+ this.lastPosition - this.background1.x;
+		this.runPosition += this.lastPosition - this.background1.x;
 		if(this.background1.x < -GC.WIDTH) this.background1.x += 2 * GC.WIDTH;
 		if(this.background2.x < -GC.WIDTH) this.background2.x += 2 * GC.WIDTH;
 		this.lastPosition = this.background1.x;
@@ -101,10 +111,11 @@ class GameScene extends Phaser.Scene {
 		let notReactedObjs = this.obstacles.filter(
 			obj => obj.x <= -GC.WIDTH/2
 		);
+		// TODO: remove not reacted objs from this.obstacles
 
 		// open doors
 		if (this.one.isDown) {
-			console.log('OPEN doors');
+			// console.log('OPEN doors');
 
 			let houses = hitObjs.filter( obj => obj.data.get('type') === GC.TYPE_HOUSE);
 
@@ -117,18 +128,19 @@ class GameScene extends Phaser.Scene {
 
 			// score the opening
 			this.opened += houses.length;
+			this.openText.setText(GC.HOUSE_PREFIX + this.opened);
 		}
 
 		// vaccinate people
 		if (this.two.isDown) {
-			console.log('VACCINATE people');
+			// console.log('VACCINATE people');
 
 			let humans = hitObjs.filter( obj => obj.data.get('type') === GC.TYPE_PERSON);
 
 
-			console.log(this.markus.x - GC.HIT_REGION, this.obstacles[0].x, this.markus.x + GC.HIT_REGION);
-			console.log(hitObjs.length);
-			console.log(humans.length);
+			// console.log(this.markus.x - GC.HIT_REGION, this.obstacles[0].x, this.markus.x + GC.HIT_REGION);
+			// console.log(hitObjs.length);
+			// console.log(humans.length);
 
 			// do vaccinate humans
 			humans.forEach( human => {
@@ -143,7 +155,7 @@ class GameScene extends Phaser.Scene {
 
 		// mask people
 		if (this.three.isDown) {
-			console.log('MASK people');
+			// console.log('MASK people');
 
 			let humans = hitObjs.filter( obj => obj.data.get('type') === GC.TYPE_PERSON);
 
@@ -159,7 +171,7 @@ class GameScene extends Phaser.Scene {
 
 		// disguise with sunglasses
 		if (this.four.isDown) {
-			console.log('DISGUISE');
+			// console.log('DISGUISE');
 
 			let demonstrations = hitObjs.filter( obj => obj.data.get('type') === GC.TYPE_DEMONSTRATION);
 
@@ -175,31 +187,59 @@ class GameScene extends Phaser.Scene {
 	}
 
 	fillObjects() {
-		while(LEVEL[this.levelIterator] && LEVEL[this.levelIterator].deltaX + this.levelIterationX 
-			< this.position + GC.WIDTH) {
+		while(LEVEL[this.levelIterator] 
+			&& LEVEL[this.levelIterator].deltaX + this.levelIterationX 
+			<= this.runPosition + GC.WIDTH
+		) {
 			switch(LEVEL[this.levelIterator].type) {
 				case 'person':
 					this.createPerson(LEVEL[this.levelIterator]);
 				break;
+				case 'house':
+					this.createHouse(LEVEL[this.levelIterator]);
+				break;
+				case 'end':
+					this.end();
+				break;
 			}
-			this.levelIterationX =+ LEVEL[this.levelIterator].deltaX;
+			this.levelIterationX += LEVEL[this.levelIterator].deltaX;
 			this.levelIterator++;
 		}
 	}
 
+	end() {
+        this.scene.start('EndScene');
+	}
 	createPerson(obj) {
 		let person = this.add.sprite(
-			LEVEL[this.levelIterator].deltaX + this.levelIterationX - this.position, 
+			obj.deltaX + this.levelIterationX - this.runPosition, 
 			GC.HEIGHT - GC.FLOOR_HEIGHT,
 			'gang', 3
 		);
 		person.setOrigin(0, 1);
 		this.physics.add.existing(person);
 		person.body.setVelocityX(GC.PERSON_SCROLL_SPEED);
+
 		person.setDataEnabled();
-		person.data.set('type', 'person');
+		person.data.set('type', GC.TYPE_PERSON);
 		person.data.set('reacted', false);
 		this.obstacles.push(person);
+	}
+
+	createHouse(obj) {
+		let house = this.add.image(
+			obj.deltaX + this.levelIterationX - this.runPosition, 
+			GC.HEIGHT - GC.FLOOR_HEIGHT,
+			'dgs'
+		);
+		house.setOrigin(0, 1);
+		this.physics.add.existing(house);
+		house.body.setVelocityX(GC.HOUSE_SCROLL_SPEED);
+
+		house.setDataEnabled();
+		house.data.set('type', GC.TYPE_HOUSE);
+		house.data.set('reacted', false);
+		this.obstacles.push(house);
 	}
 
 }
