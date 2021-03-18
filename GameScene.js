@@ -10,8 +10,8 @@ class GameScene extends Phaser.Scene {
 		this.background2 = null;
 		this.person = null;
 
-		this.lastPostion = 0;
-		this.position = 0;
+		this.lastPosition = 0;
+		this.runPosition = 0;
 		this.levelIterator = 0;
 		this.levelIterationX = 0;
 	}
@@ -51,16 +51,11 @@ class GameScene extends Phaser.Scene {
 
         this.markus.play('walk');
 
-        this.input.once('pointerdown', function () {
-            console.log('switching to EndScene');
-            this.scene.start('EndScene');
-        }, this);
-
         this.fillObjects();
 	}
 
 	update() {
-		this.position =+ this.lastPosition - this.background1.x;
+		this.runPosition += this.lastPosition - this.background1.x;
 		if(this.background1.x < -GC.WIDTH) this.background1.x += 2 * GC.WIDTH;
 		if(this.background2.x < -GC.WIDTH) this.background2.x += 2 * GC.WIDTH;
 		this.lastPosition = this.background1.x;
@@ -69,11 +64,16 @@ class GameScene extends Phaser.Scene {
 	}
 
 	fillObjects() {
-		while(LEVEL[this.levelIterator] && LEVEL[this.levelIterator].deltaX + this.levelIterationX 
-			< this.position + GC.WIDTH) {
+		while(LEVEL[this.levelIterator] 
+			&& LEVEL[this.levelIterator].deltaX + this.levelIterationX 
+			<= this.runPosition + GC.WIDTH) {
+			console.log(LEVEL[this.levelIterator].type);
 			switch(LEVEL[this.levelIterator].type) {
 				case 'person':
 					this.createPerson(LEVEL[this.levelIterator]);
+				break;
+				case 'end':
+					this.end();
 				break;
 			}
 			this.levelIterationX =+ LEVEL[this.levelIterator].deltaX;
@@ -81,17 +81,21 @@ class GameScene extends Phaser.Scene {
 		}
 	}
 
+	end() {
+        this.scene.start('EndScene');
+	}
 	createPerson(obj) {
 		let person = this.add.sprite(
-			LEVEL[this.levelIterator].deltaX + this.levelIterationX - this.position, 
+			LEVEL[this.levelIterator].deltaX + this.levelIterationX - this.runPosition, 
 			GC.HEIGHT - GC.FLOOR_HEIGHT,
 			'gang', 3
 		);
 		person.setOrigin(0, 1);
 		this.physics.add.existing(person);
 		person.body.setVelocityX(GC.PERSON_SCROLL_SPEED);
-		person.data.set('type', 'person');
-		person.data.set('reacted', false);
+
+		//person.data.set('type', 'person');
+		//person.data.set('reacted', false);
 	}
 
 }
