@@ -7,7 +7,9 @@ class GameScene extends Phaser.Scene {
 
 		this.markus = null;
 		this.background1 = null;
+		this.background1Swap = null;
 		this.background2 = null;
+		this.background2Swap = null;
 		this.person = null;
 
 		this.lastPosition = 0;
@@ -22,6 +24,9 @@ class GameScene extends Phaser.Scene {
 			frameHeight: 128
 		});
 		this.load.image('backgroundGame', 'img/background.png');
+		this.load.image('background-wald1', 'img/bregenzerwald-background.png');
+		this.load.image('background-wald2', 'img/bregenzerwald-trees-background.png');
+		this.load.image('background-bregenz', 'img/bregenz-festspielhaus-background.png');
 		this.load.image('dgs', 'img/DGS.png');
 		this.load.image('floor', 'img/floor.png');
 		this.load.spritesheet('gang', 'img/gang.png', {
@@ -43,6 +48,7 @@ class GameScene extends Phaser.Scene {
 		this.add.image(GC.WIDTH/2, GC.HEIGHT - 32 / 2, 'floor');
 
 		this.markus = this.add.sprite(128, GC.HEIGHT - 34 - 128 / 2, 'markus-w', 0);
+		this.markus.depth = 100;
 		this.anims.create({
             key: 'walk',
             frames: this.anims.generateFrameNumbers('markus-w', { frames: [ 0, 1, 2, 3, 4, 5, 6, 7 ] }),
@@ -57,8 +63,32 @@ class GameScene extends Phaser.Scene {
 
 	update() {
 		this.runPosition += this.lastPosition - this.background1.x;
-		if(this.background1.x < -GC.WIDTH) this.background1.x += 2 * GC.WIDTH;
-		if(this.background2.x < -GC.WIDTH) this.background2.x += 2 * GC.WIDTH;
+		if(this.background1.x < -GC.WIDTH) {
+			this.background1.x += 2 * GC.WIDTH;
+			if(this.background1Swap) {
+				let obgX = this.background1.x;
+				this.background1.destroy();
+				this.background1 = this.add.image(obgX, 0, 'background-' + this.background1Swap);
+				this.background1.setOrigin(0);
+				this.physics.add.existing(this.background1);
+				this.background1.body.setVelocityX(GC.BACKGROUND_SCROLL_SPEED);
+				this.background1.depth = 0;
+				this.background1Swap = null;
+			}
+		}
+		if(this.background2.x < -GC.WIDTH) {			
+			this.background2.x += 2 * GC.WIDTH;
+			if(this.background2Swap) {
+				let obgX = this.background2.x;
+				this.background2.destroy();
+				this.background2 = this.add.image(obgX, 0, 'background-' + this.background2Swap);
+				this.background2.setOrigin(0);
+				this.physics.add.existing(this.background2);
+				this.background2.body.setVelocityX(GC.BACKGROUND_SCROLL_SPEED);
+				this.background1.depth = 0;
+				this.background2Swap = null;
+			}
+		}
 		this.lastPosition = this.background1.x;
 
 		this.fillObjects();
@@ -75,6 +105,9 @@ class GameScene extends Phaser.Scene {
 				break;
 				case 'house':
 					this.createHouse(LEVEL[this.levelIterator]);
+				break;
+				case 'background':
+					this.swapBackground(LEVEL[this.levelIterator]);
 				break;
 				case 'end':
 					this.end();
@@ -111,6 +144,11 @@ class GameScene extends Phaser.Scene {
 		house.setOrigin(0, 1);
 		this.physics.add.existing(house);
 		house.body.setVelocityX(GC.HOUSE_SCROLL_SPEED);
+	}
+
+	swapBackground(obj) {
+		if(obj.key1) this.background1Swap = obj.key1;
+		if(obj.key2) this.background2Swap = obj.key2;
 	}
 
 }
