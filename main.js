@@ -1,27 +1,16 @@
-class GameScene extends Phaser.Scene {
-	constructor() {
-		super('game');
-	}
-
-	preload() {
-	}
-
-	create() {
-	}
-
-	update() {
-	}
-}
-
+import * as GC from "./Constants.js";
+import StartScene from "./StartScene.js";
+import GameScene from "./GameScene.js";
+import EndScene from "./EndScene.js";
 
 let game = new Phaser.Game({
 	parent: 'phaser',
-	width: 1024,
-	height: 256,
+	width: GC.WIDTH,
+	height: GC.HEIGHT,
 	physics: {
 		default: 'arcade',
 	},
-	scene: [GameScene]
+	scene: [StartScene, GameScene, EndScene]
 });
 
 export default game;
