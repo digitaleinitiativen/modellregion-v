@@ -7,7 +7,7 @@ class StartScene extends Phaser.Scene {
     }
 
     preload () {
-        this.load.image('backgroundStart', 'img/backgroundStart.png');
+        this.load.image('backgroundStart', 'img/start-screen-sim.png');
     }
 
     create () {

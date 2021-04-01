@@ -10,7 +10,7 @@ let game = new Phaser.Game({
 	physics: {
 		default: 'arcade',
 	},
-	scene: [/*StartScene, */GameScene, EndScene]
+	scene: [StartScene, GameScene, EndScene]
 });
 
 export default game;
